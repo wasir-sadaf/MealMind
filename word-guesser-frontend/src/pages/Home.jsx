@@ -21,15 +21,16 @@ const Home = () => {
     try {
       const response = await gameService.startGame(secretWord);
       
-      // Save ID and Role to Context
+      // Save ID, Role, and Secret Word to Context
       setGameData({
-        gameId: response.game_id,
-        playerId: response.player1_id,
-        role: 'host'
+        gameId: response.gameId,
+        playerId: response.player1Id,
+        role: 'host',
+        secretWord: secretWord // Store secret word for host to see
       });
 
       // Navigate to Game Room
-      navigate(`/game/${response.game_id}`);
+      navigate(`/game/${response.gameId}`);
       
     } catch (err) {
       console.error(err);

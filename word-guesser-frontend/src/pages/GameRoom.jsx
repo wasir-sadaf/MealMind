@@ -17,7 +17,9 @@ const GameRoom = () => {
   // State
   const [questions, setQuestions] = useState([]);
   const [gameStatus, setGameStatus] = useState('ongoing'); // 'ongoing' or 'won'
-  const [secretWord, setSecretWord] = useState('');
+  
+  // Get secret word from context (only available for host)
+  const secretWord = gameData.role === 'host' ? (gameData.secretWord || '') : '';
 
   // Initialize WebSocket connection
   const { isConnected, onEvent, error: socketError } = useWebSocket(gameId, gameData.playerId);

@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// ⚠️ IMPORTANT: Ensure this matches your Backend Server Port (3000, 5000, 8080?)
-const API_BASE_URL = 'http://localhost:5000/api/game'; 
+// Use relative path to leverage Vite proxy (configured in vite.config.js)
+// Vite proxy forwards /api requests to http://localhost:5000
+const API_BASE_URL = '/api/game'; 
 
 const api = axios.create({
   baseURL: API_BASE_URL,

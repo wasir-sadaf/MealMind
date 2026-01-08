@@ -21,8 +21,9 @@ testConnection()
     })
     .finally(() => {
         // Start server regardless of DB connection status
-        server.listen(PORT, () => {
+        server.listen(PORT, '0.0.0.0', () => {
             console.log(`🚀 Server running on port ${PORT}`);
             console.log(`🔌 WebSocket server ready for connections`);
+            console.log(`📡 API available at http://localhost:${PORT}`);
         });
     });

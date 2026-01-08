@@ -24,7 +24,7 @@ const Lobby = () => {
         // Save Player 2 info
         setGameData({
           gameId: gameId,
-          playerId: response.player2_id || `temp-p2-${Date.now()}`,
+          playerId: response.player2Id || `temp-p2-${Date.now()}`,
           role: 'guesser'
         });
 
