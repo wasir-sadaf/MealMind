@@ -1,29 +1,32 @@
-// src/socket.js
-const socketHandler = (io) => {
+import { Server } from 'socket.io';
+
+let io;
+
+export const initSocket = (server) => {
+    io = new Server(server, {
+        cors: {
+            origin: "*", // Allow all for hackathon
+            methods: ["GET", "POST"]
+        }
+    });
+
     io.on('connection', (socket) => {
-        console.log(`🔌 Player Connected: ${socket.id}`);
+        console.log(`🔌 Socket Connected: ${socket.id}`);
 
-        // --- WONDER 2: JOINING A ROOM ---
-        socket.on('join_room', (roomCode) => {
-            socket.join(roomCode);
-            console.log(`Player ${socket.id} joined room ${roomCode}`);
-            socket.to(roomCode).emit('player_joined', socket.id);
-        });
-
-        // --- WONDER 2: SILENT SIGNALS ---
-        socket.on('send_signal', (data) => {
-            socket.to(data.room).emit('receive_signal', data.icon);
-        });
-
-        // --- WONDER 3: MIND SYNC ---
-        socket.on('sync_click', (data) => {
-            socket.to(data.room).emit('partner_click', data.time);
-        });
-
-        socket.on('disconnect', () => {
-            console.log('Player Disconnected');
+        // Join a Game Room based on Game ID
+        socket.on('join_game', (gameId) => {
+            socket.join(gameId);
+            console.log(`Socket ${socket.id} joined game: ${gameId}`);
         });
     });
+
+    return io;
 };
 
-export default socketHandler;
+// This function lets Controllers get the active Socket instance
+export const getIO = () => {
+    if (!io) {
+        throw new Error("Socket.io not initialized!");
+    }
+    return io;
+};
