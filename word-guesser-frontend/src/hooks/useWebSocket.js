@@ -9,14 +9,22 @@ export const useWebSocket = (gameId, playerId) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!gameId) return;
+    if (!gameId) {
+      console.log('⏳ Waiting for gameId to connect WebSocket...');
+      return;
+    }
 
+    console.log(`🔌 Initializing WebSocket connection to ${SOCKET_URL} for game ${gameId}`);
+    
     // Initialize Socket.io connection
     const socketInstance = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: Infinity,
+      timeout: 20000,
+      forceNew: false,
+      autoConnect: true
     });
 
     // Connection events
@@ -26,10 +34,16 @@ export const useWebSocket = (gameId, playerId) => {
       setError(null);
       
       // Join the game room
-      socketInstance.emit('join_game', gameId);
+      if (gameId) {
+        socketInstance.emit('join_game', gameId);
+        console.log(`📥 Joined game room: ${gameId}`);
+      }
       
-      // Send player info
-      socketInstance.emit('player_info', { gameId, playerId });
+      // Send player info if available
+      if (playerId) {
+        socketInstance.emit('player_info', { gameId, playerId });
+        console.log(`👤 Sent player info: ${playerId}`);
+      }
     });
 
     socketInstance.on('disconnect', () => {
@@ -39,8 +53,24 @@ export const useWebSocket = (gameId, playerId) => {
 
     socketInstance.on('connect_error', (err) => {
       console.error('WebSocket Connection Error:', err);
-      setError(err.message);
+      setError(err.message || 'Failed to connect to server. Make sure the backend is running on port 5000.');
       setIsConnected(false);
+    });
+
+    socketInstance.on('reconnect_attempt', () => {
+      console.log('🔄 Attempting to reconnect...');
+      setError('Reconnecting...');
+    });
+
+    socketInstance.on('reconnect', (attemptNumber) => {
+      console.log(`✅ Reconnected after ${attemptNumber} attempts`);
+      setError(null);
+      setIsConnected(true);
+    });
+
+    socketInstance.on('reconnect_failed', () => {
+      console.error('❌ Reconnection failed');
+      setError('Failed to reconnect. Please refresh the page.');
     });
 
     setSocket(socketInstance);

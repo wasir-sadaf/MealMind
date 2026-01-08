@@ -91,13 +91,22 @@ const GameRoom = () => {
     <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* WebSocket connection status */}
       {socketError && (
-        <div className="bg-red-900/30 border border-red-500 p-3 rounded-lg text-red-300 text-sm">
-          WebSocket Error: {socketError}
+        <div className="bg-red-900/30 border border-red-500 p-3 rounded-lg text-red-300 text-sm space-y-2">
+          <div className="font-bold">WebSocket Connection Error:</div>
+          <div>{socketError}</div>
+          <div className="text-xs mt-2 text-red-400">
+            💡 Make sure the backend server is running: <code className="bg-slate-900 px-2 py-1 rounded">npm run dev</code> in the server directory
+          </div>
         </div>
       )}
-      {!isConnected && (
+      {!isConnected && !socketError && (
         <div className="bg-yellow-900/30 border border-yellow-500 p-3 rounded-lg text-yellow-300 text-sm">
-          Connecting to server... {isConnected ? '✅' : '⏳'}
+          <span className="animate-pulse">⏳</span> Connecting to server...
+        </div>
+      )}
+      {isConnected && (
+        <div className="bg-green-900/30 border border-green-500 p-3 rounded-lg text-green-300 text-sm">
+          ✅ Connected to server
         </div>
       )}
 

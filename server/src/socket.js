@@ -11,8 +11,14 @@ export const initSocket = (server) => {
     io = new Server(server, {
         cors: {
             origin: "*", // Allow all for hackathon
-            methods: ["GET", "POST"]
-        }
+            methods: ["GET", "POST"],
+            credentials: true,
+            allowedHeaders: ["*"]
+        },
+        allowEIO3: true, // Allow Engine.IO v3 clients
+        transports: ['websocket', 'polling'],
+        pingTimeout: 60000,
+        pingInterval: 25000
     });
 
     io.on('connection', (socket) => {

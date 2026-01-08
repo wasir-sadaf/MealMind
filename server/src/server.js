@@ -10,8 +10,19 @@ initSocket(server);
 
 const PORT = process.env.PORT || 5000;
 
-await testConnection();
-
-server.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-});
+// Make database connection optional - don't block server startup
+testConnection()
+    .then(() => {
+        console.log('✅ Database connected');
+    })
+    .catch((err) => {
+        console.warn('⚠️  Database connection failed, continuing without DB:', err.message);
+        console.log('ℹ️  Server will use in-memory storage only');
+    })
+    .finally(() => {
+        // Start server regardless of DB connection status
+        server.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+            console.log(`🔌 WebSocket server ready for connections`);
+        });
+    });
