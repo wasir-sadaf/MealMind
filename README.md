@@ -4,46 +4,75 @@ A real-time word guessing game built with React, Node.js, Express, and Socket.io
 
 ## 🚀 Features
 
-- **Real-time multiplayer gameplay** using WebSocket connections
-- **Interactive UI** built with React and Tailwind CSS
-- **RESTful API** for game management
-- **MySQL database support** (optional - falls back to in-memory storage)
-- **Automated testing** for API and WebSocket functionality
-- **Responsive design** for desktop and mobile
+* **Real-time multiplayer gameplay** using WebSocket connections
+* **Interactive UI** built with React and Tailwind CSS
+* **RESTful API** for game management
+* **MySQL database support** (optional - falls back to in-memory storage)
+* **Automated testing** for API and WebSocket functionality
+* **Responsive design** for desktop and mobile
 
 ## 🛠️ Tech Stack
 
 ### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **Socket.io** - Real-time communication
-- **MySQL2** - Database connectivity
-- **JWT** - Authentication (future use)
-- **bcryptjs** - Password hashing (future use)
+
+* **Node.js**
+* **Express.js**
+* **Socket.io**
+* **MySQL2**
+* **JWT** (future use)
+* **bcryptjs** (future use)
 
 ### Frontend
-- **React 19** - UI library
-- **Vite** - Build tool and dev server
-- **Tailwind CSS** - Styling
-- **React Router** - Client-side routing
-- **Axios** - HTTP client
-- **Socket.io-client** - Real-time client
+
+* **React 19**
+* **Vite**
+* **Tailwind CSS**
+* **React Router**
+* **Axios**
+* **Socket.io-client**
 
 ## 📋 Prerequisites
 
-Before running this application, make sure you have the following installed:
-
-- **Node.js** (v16 or higher)
-- **npm** or **yarn**
-- **MySQL** (optional - for persistent storage)
+* **Node.js** (v16 or higher)
+* **npm** or **yarn**
+* **MySQL** (optional)
 
 ## 🗄️ Database Setup (Optional)
 
-If you want to use MySQL for persistent storage:
+If you want persistent storage, use MySQL.
 
-1. **Install MySQL** on your system
-2. **Create a database** named `guess_db`
-3. **Create a `.env` file** in the `server` directory:
+### 1. Create Database
+
+```sql
+CREATE DATABASE guess_db;
+USE guess_db;
+```
+
+### 2. Create Tables
+
+```sql
+CREATE TABLE games (
+    game_id VARCHAR(50) PRIMARY KEY,
+    player1_id VARCHAR(50),
+    player2_id VARCHAR(50),
+    secret_word VARCHAR(255),
+    status ENUM('ongoing','won') DEFAULT 'ongoing',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE questions (
+    question_id INT AUTO_INCREMENT PRIMARY KEY,
+    game_id VARCHAR(50),
+    question_text VARCHAR(255),
+    answer ENUM('Yes','No') DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (game_id) REFERENCES games(game_id) ON DELETE CASCADE
+);
+```
+
+### 3. Environment Variables
+
+Create a `.env` file inside the `server` directory:
 
 ```env
 DB_HOST=localhost
@@ -53,204 +82,80 @@ DB_NAME=guess_db
 PORT=5000
 ```
 
-**Note:** The application will work without a database using in-memory storage.
+> If MySQL is not configured, the app automatically falls back to in-memory storage. No crashes, no drama.
 
 ## 🚀 Installation & Setup
 
-### 1. Clone the Repository
+### Clone the Repository
+
 ```bash
 git clone <repository-url>
 cd MealMind
 ```
 
-### 2. Install Backend Dependencies
+### Backend Setup
+
 ```bash
 cd server
 npm install
-```
-
-### 3. Install Frontend Dependencies
-```bash
-cd ../word-guesser-frontend
-npm install
-```
-
-### 4. Start the Development Servers
-
-#### Terminal 1 - Backend Server
-```bash
-cd server
 npm run dev
 ```
-**Expected Output:**
-```
-✅ Database connected
-🚀 Server running on port 5000
-🔌 WebSocket server ready for connections
-📡 API available at http://localhost:5000
-```
 
-#### Terminal 2 - Frontend Server
+### Frontend Setup
+
 ```bash
 cd word-guesser-frontend
+npm install
 npm run dev
 ```
-**Expected Output:**
-```
-VITE v7.x.x ready in xxx ms
-➜ Local: http://localhost:3000/
-```
 
-## 🧪 Testing
-
-### Automated Tests
-```bash
-cd server
-
-# Test API endpoints
-npm run test:api
-
-# Test WebSocket connections
-npm run test:ws
-
-# Run all tests
-npm run test:all
-```
-
-### Manual Testing
-1. Open your browser and navigate to `http://localhost:3000`
-2. Start a new game as Player 1
-3. Copy the Game ID and open a new browser window/tab
-4. Join the game as Player 2 using the Game ID
-5. Test real-time communication by asking questions and answering
+Frontend runs at `http://localhost:3000`
+Backend runs at `http://localhost:5000`
 
 ## 📁 Project Structure
 
 ```
 MealMind/
-├── server/                          # Backend Node.js application
+├── server/
 │   ├── src/
-│   │   ├── app.js                   # Express app setup
-│   │   ├── server.js                # Server entry point
-│   │   ├── socket.js                # WebSocket configuration
+│   │   ├── app.js
+│   │   ├── server.js
+│   │   ├── socket.js
 │   │   ├── config/
-│   │   │   ├── db.js                # Database configuration
-│   │   │   └── dotenv.config.js     # Environment variables
+│   │   │   ├── db.js
+│   │   │   └── dotenv.config.js
 │   │   ├── controller/
-│   │   │   └── gameController.js    # Game logic
+│   │   │   └── gameController.js
 │   │   └── route/
-│   │       └── gameRoutes.js        # API routes
-│   ├── test/                        # Test files
-│   │   ├── gamecontrol.rest
-│   │   ├── test-api.js
-│   │   ├── test-final-guess.js
-│   │   └── test-websocket.js
-│   └── package.json
-├── word-guesser-frontend/           # Frontend React application
+│   │       └── gameRoutes.js
+│   └── test/
+├── word-guesser-frontend/
 │   ├── src/
-│   │   ├── App.jsx
-│   │   ├── main.jsx
 │   │   ├── components/
-│   │   │   ├── game/
-│   │   │   │   ├── GameHeader.jsx
-│   │   │   │   ├── GuesserPanel.jsx
-│   │   │   │   ├── HostPanel.jsx
-│   │   │   │   └── QuestionHistory.jsx
-│   │   │   └── ui/
-│   │   │       ├── Button.jsx
-│   │   │       ├── Card.jsx
-│   │   │       ├── Input.jsx
-│   │   │       └── WinModal.jsx
-│   │   ├── context/
-│   │   │   └── GameContext.jsx
-│   │   ├── hooks/
-│   │   │   ├── useGameStatus.js
-│   │   │   └── useWebSocket.js
 │   │   ├── pages/
-│   │   │   ├── GameRoom.jsx
-│   │   │   ├── Home.jsx
-│   │   │   ├── Lobby.jsx
-│   │   │   └── NotFound.jsx
-│   │   ├── services/
-│   │   │   └── api.js
-│   │   └── utils/
-│   │       └── helpers.js
-│   ├── public/
-│   └── package.json
-├── QUICK-START.md                   # Quick start guide
-├── TESTING.md                       # Detailed testing guide
-├── TEST-RESULTS.md                  # Test results
-└── README.md                        # This file
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   └── services/
+└── README.md
 ```
 
 ## 🔌 API Endpoints
 
-### Game Management
-- `POST /api/game/start` - Start a new game
-- `POST /api/game/join` - Join an existing game
-- `GET /api/game/status/:gameId` - Get game status
-- `POST /api/game/guess` - Submit a question
-- `POST /api/game/reply` - Answer a question
-
-### WebSocket Events
-- `game_player_joined` - Player joined the game
-- `question_submitted` - New question asked
-- `question_answered` - Question answered
+* `POST /api/game/start`
+* `POST /api/game/join`
+* `GET /api/game/status/:gameId`
+* `POST /api/game/guess`
+* `POST /api/game/reply`
 
 ## 🎮 How to Play
 
-1. **Player 1** starts a new game by entering a secret word
-2. **Player 1** shares the Game ID with Player 2
-3. **Player 2** joins using the Game ID
-4. Players take turns asking yes/no questions
-5. The goal is to guess the secret word with as few questions as possible
-6. Real-time updates ensure both players see questions and answers instantly
-
-## 🔧 Development Scripts
-
-### Backend
-```bash
-cd server
-npm run dev          # Start development server with nodemon
-npm start            # Start production server
-npm run test:api     # Test API endpoints
-npm run test:ws      # Test WebSocket connections
-npm run test:all     # Run all tests
-```
-
-### Frontend
-```bash
-cd word-guesser-frontend
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-```
-
-## 🚀 Deployment
-
-### Backend Deployment
-1. Set environment variables for production
-2. Run `npm start` instead of `npm run dev`
-3. Ensure MySQL database is accessible
-
-### Frontend Deployment
-1. Run `npm run build` to create production build
-2. Serve the `dist` folder with any static file server
-3. Update API base URL in production
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests to ensure everything works
-5. Submit a pull request
+1. Player 1 starts a game and sets a secret word
+2. Share the Game ID
+3. Player 2 joins
+4. Ask yes/no questions
+5. Guess the word
+6. Win. Brag. Repeat.
 
 ## 📝 License
 
-This project is licensed under the ISC License.
-
-## 📞 Support
-
-For questions or issues, please check the testing guides or create an issue in the repository.
+ISC License
