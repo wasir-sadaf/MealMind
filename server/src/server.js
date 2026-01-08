@@ -8,7 +8,7 @@ const server = http.createServer(app);
 // 1. Initialize Socket.io passing the HTTP server
 initSocket(server);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 await testConnection();
 

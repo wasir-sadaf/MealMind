@@ -1,6 +1,7 @@
 // src/app.js
 import express from 'express';
 import cors from 'cors';
+import gameRoutes from './route/gameRoutes.js'; // import before using
 
 const app = express();
 
@@ -8,9 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Basic Route
+// Mount game routes
+app.use('/api/game', gameRoutes);
+
+// Basic route
 app.get('/', (req, res) => {
-    res.send('API is running...');
+  res.send('API is running...');
 });
 
 export default app;

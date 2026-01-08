@@ -1,27 +1,31 @@
-// src/config/db.js
-import mysql from 'mysql2/promise';
-import 'dotenv/config'; // Loads .env variables
+import mysql from "mysql2";
+import dotenv from "dotenv";
 
-// Create the connection pool
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'hackday',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+dotenv.config();
+
+const db = mysql.createPool({
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "guess_db",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-// Helper to check connection
-const testConnection = async () => {
-    try {
-        await pool.query('SELECT 1');
-        console.log('✅ MySQL Database Connected');
-    } catch (err) {
-        console.error('❌ Database Connection Failed:', err.message);
-    }
+export const testConnection = () => {
+  return new Promise((resolve, reject) => {
+    db.getConnection((err, connection) => {
+      if (err) {
+        console.error("MySQL connection failed:", err.message);
+        reject(err);
+      } else {
+        console.log("MySQL connected successfully");
+        connection.release();
+        resolve();
+      }
+    });
+  });
 };
 
-// Named exports
-export { pool, testConnection };
+export default db.promise(); 

@@ -1,0 +1,42 @@
+### 1️⃣ Start a new game (Player 1)
+POST http://localhost:3001/api/game/start
+Content-Type: application/json
+
+{
+  "secretWord": "Batman"
+}
+
+
+### 2️⃣ Join the game (Player 2)
+POST http://localhost:3001/api/game/join
+Content-Type: application/json
+
+{
+  "gameId": "c7108309-1012-42b1-b32e-3b923424d1ff"
+}
+
+
+
+### 3️⃣ Submit a question (Player 2)
+POST http://localhost:3001/api/game/guess
+Content-Type: application/json
+
+{
+  "gameId": "c7108309-1012-42b1-b32e-3b923424d1ff",
+  "question": "Is it a superhero?"
+}
+
+
+### 4️⃣ Reply Yes/No (Player 1)
+POST http://localhost:3001/api/game/reply
+Content-Type: application/json
+
+{
+  "gameId": "c7108309-1012-42b1-b32e-3b923424d1ff",
+  "questionIndex": 0,
+  "answer": "Yes"
+}
+
+
+### 5️⃣ Get game status
+GET http://localhost:3001/api/game/status/0a967bf3-084f-4ef7-900b-c2aa1afb65ba
