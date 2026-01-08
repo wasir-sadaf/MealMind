@@ -1,8 +1,12 @@
 // gameController.js
 import { v4 as uuidv4 } from 'uuid';
+import { getIO } from '../socket.js';
 
 // In-memory game storage
 const games = {};
+
+// Export games for socket access
+export const getGames = () => games;
 
 export const startGame = (req, res) => {
   const { secretWord } = req.body;
@@ -32,6 +36,18 @@ export const joinGame = (req, res) => {
 
   games[gameId].player2Id = player2Id;
 
+  // Emit socket event when player joins
+  try {
+    const io = getIO();
+    io.to(gameId).emit('game_player_joined', {
+      gameId,
+      player2Id,
+      playerCount: 2
+    });
+  } catch (err) {
+    console.error('Socket not available:', err.message);
+  }
+
   return res.json({
     player2Id,
     message: 'Joined game successfully!'
@@ -43,8 +59,19 @@ export const submitQuestion = (req, res) => {
 
   if (!games[gameId]) return res.status(404).json({ error: 'Game not found' });
 
-  const questionObj = { question, answer: null };
+  const questionObj = { question, answer: null, index: games[gameId].questionHistory.length };
   games[gameId].questionHistory.push(questionObj);
+
+  // Emit socket event for real-time update
+  try {
+    const io = getIO();
+    io.to(gameId).emit('question_submitted', {
+      question: questionObj,
+      gameId
+    });
+  } catch (err) {
+    console.error('Socket not available:', err.message);
+  }
 
   return res.json({ message: 'Question submitted!', question: questionObj });
 };
@@ -56,6 +83,19 @@ export const replyQuestion = (req, res) => {
   if (!['Yes', 'No'].includes(answer)) return res.status(400).json({ error: 'Invalid answer' });
 
   games[gameId].questionHistory[questionIndex].answer = answer;
+
+  // Emit socket event for real-time update
+  try {
+    const io = getIO();
+    io.to(gameId).emit('question_answered', {
+      questionIndex,
+      answer,
+      question: games[gameId].questionHistory[questionIndex],
+      gameId
+    });
+  } catch (err) {
+    console.error('Socket not available:', err.message);
+  }
 
   return res.json({ message: 'Answer submitted!', question: games[gameId].questionHistory[questionIndex] });
 };
