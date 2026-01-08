@@ -5,6 +5,7 @@ import {
   joinGame,
   submitQuestion,
   replyQuestion,
+  submitFinalGuess,
   getGameStatus
 } from '../controller/gameController.js';
 
@@ -18,6 +19,9 @@ router.post('/join', joinGame);
 
 // Submit a question
 router.post('/guess', submitQuestion);
+
+// Submit final guess (the actual word)
+router.post('/final-guess', submitFinalGuess);
 
 // Reply Yes/No
 router.post('/reply', replyQuestion);

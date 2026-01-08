@@ -9,6 +9,7 @@ import HostPanel from '../components/game/HostPanel';
 import GuesserPanel from '../components/game/GuesserPanel';
 import QuestionHistory from '../components/game/QuestionHistory';
 import GameHeader from '../components/game/GameHeader';
+import WinModal from '../components/ui/WinModal';
 
 const GameRoom = () => {
   const { gameId } = useParams();
@@ -17,6 +18,8 @@ const GameRoom = () => {
   // State
   const [questions, setQuestions] = useState([]);
   const [gameStatus, setGameStatus] = useState('ongoing'); // 'ongoing' or 'won'
+  const [showWinModal, setShowWinModal] = useState(false);
+  const [revealedSecretWord, setRevealedSecretWord] = useState('');
   
   // Get secret word from context (only available for host)
   const secretWord = gameData.role === 'host' ? (gameData.secretWord || '') : '';
@@ -68,6 +71,21 @@ const GameRoom = () => {
       console.log(`Player joined! Total players: ${playerCount}`);
     });
 
+    // Listen for game won event
+    const unsubscribeGameWon = onEvent('game_won', ({ secretWord, winningGuess, message }) => {
+      console.log('🎉 Game won!', { secretWord, winningGuess });
+      setGameStatus('won');
+      setRevealedSecretWord(secretWord);
+      setShowWinModal(true);
+    });
+
+    // Listen for final guess submitted (wrong guess)
+    const unsubscribeFinalGuess = onEvent('final_guess_submitted', ({ guess, correct }) => {
+      if (!correct) {
+        console.log(`Wrong final guess: ${guess}`);
+      }
+    });
+
     // Listen for sync actions (for sync protocol game)
     const unsubscribeSyncSuccess = onEvent('sync_success', ({ actionType, timeDiff, message }) => {
       console.log(`✅ ${message} - Action: ${actionType}, Time diff: ${timeDiff}ms`);
@@ -82,6 +100,8 @@ const GameRoom = () => {
       unsubscribeQuestion?.();
       unsubscribeAnswer?.();
       unsubscribeJoin?.();
+      unsubscribeGameWon?.();
+      unsubscribeFinalGuess?.();
       unsubscribeSyncSuccess?.();
       unsubscribeSyncFailed?.();
     };
@@ -132,7 +152,12 @@ const GameRoom = () => {
             <GuesserPanel 
               gameId={gameId} 
               playerId={gameData.playerId} 
-              gameStatus={gameStatus} 
+              gameStatus={gameStatus}
+              onGameWon={(secretWord) => {
+                setGameStatus('won');
+                setRevealedSecretWord(secretWord);
+                setShowWinModal(true);
+              }}
             />
           )}
         </div>
@@ -145,6 +170,14 @@ const GameRoom = () => {
           <QuestionHistory questions={questions} />
         </div>
       </div>
+
+      {/* Win Modal */}
+      <WinModal
+        isOpen={showWinModal}
+        onClose={() => setShowWinModal(false)}
+        secretWord={revealedSecretWord || secretWord}
+        isHost={gameData.role === 'host'}
+      />
     </div>
   );
 };

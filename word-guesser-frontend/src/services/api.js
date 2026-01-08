@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Use relative path to leverage Vite proxy (configured in vite.config.js)
-// Vite proxy forwards /api requests to http://localhost:5000
+// Vite proxy forwards /api requests to http://localhost:3001
 const API_BASE_URL = '/api/game'; 
 
 const api = axios.create({
@@ -48,6 +48,15 @@ export const gameService = {
       gameId,
       questionIndex,
       answer
+    });
+    return response.data;
+  },
+
+  // POST /final-guess - Player 2 submits final guess for the secret word
+  submitFinalGuess: async (gameId, guess) => {
+    const response = await api.post('/final-guess', {
+      gameId,
+      guess
     });
     return response.data;
   }
